@@ -1,19 +1,40 @@
 package main
 
 import (
+	"bitbucket.org/sotavant/yandex-alice-skill/internal/store"
+	"bitbucket.org/sotavant/yandex-alice-skill/internal/store/mock"
 	"bytes"
 	"compress/gzip"
 	"github.com/go-resty/resty/v2"
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 )
 
 func TestWebhook(t *testing.T) {
-	handler := http.HandlerFunc(webhook)
+	ctrl := gomock.NewController(t)
+	s := mock.NewMockStore(ctrl)
+
+	messages := []store.Message{
+		{
+			Sender:  "345345345345",
+			Time:    time.Now(),
+			Payload: "Hello",
+		},
+	}
+
+	s.EXPECT().
+		ListMessages(gomock.Any(), gomock.Any()).
+		Return(messages, nil)
+
+	appInstance := newApp(s)
+
+	handler := http.HandlerFunc(appInstance.webhook)
 	srv := httptest.NewServer(handler)
 	defer srv.Close()
 
@@ -87,7 +108,24 @@ func TestWebhook(t *testing.T) {
 }
 
 func TestGzipCompression(t *testing.T) {
-	handler := gzipMiddleware(webhook)
+	ctrl := gomock.NewController(t)
+	s := mock.NewMockStore(ctrl)
+
+	messages := []store.Message{
+		{
+			Sender:  "345345345345",
+			Time:    time.Now(),
+			Payload: "Hello",
+		},
+	}
+
+	s.EXPECT().
+		ListMessages(gomock.Any(), gomock.Any()).
+		Return(messages, nil)
+
+	appInstance := newApp(s)
+
+	handler := gzipMiddleware(appInstance.webhook)
 	srv := httptest.NewServer(handler)
 	defer srv.Close()
 
