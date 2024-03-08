@@ -4,9 +4,11 @@ import (
 	"bitbucket.org/sotavant/yandex-alice-skill/internal/logger"
 	"bitbucket.org/sotavant/yandex-alice-skill/internal/models"
 	"encoding/json"
+	"fmt"
 	"go.uber.org/zap"
 	"net/http"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -94,8 +96,23 @@ func webhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	text := "Для вас нет новых сообщений."
+
+	if req.Session.New {
+		tz, err := time.LoadLocation(req.Timezone)
+		if err != nil {
+			logger.Log.Debug("cannot parse timezone")
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		now := time.Now().In(tz)
+		hour, minute, _ := now.Clock()
+		text = fmt.Sprintf("Точное время %d часов, %d минут. %s", hour, minute, text)
+	}
+
 	resp := models.Response{
-		Response: models.ResponsePayload{Text: "Извините, я пока ничего не умею"},
+		Response: models.ResponsePayload{Text: text},
 		Version:  "1.0",
 	}
 

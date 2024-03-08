@@ -5,8 +5,14 @@ const (
 )
 
 type Request struct {
-	Request SimpleUtterance `json:"request"`
-	Version string          `json:"version"`
+	Request  SimpleUtterance `json:"request"`
+	Timezone string          `json:"timezone"`
+	Session  Session         `json:"session"`
+	Version  string          `json:"version"`
+}
+
+type Session struct {
+	New bool `json:"new"`
 }
 
 type SimpleUtterance struct {

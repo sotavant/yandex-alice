@@ -17,13 +17,6 @@ func TestWebhook(t *testing.T) {
 	srv := httptest.NewServer(handler)
 	defer srv.Close()
 
-	successBody := `{
-        "response": {
-            "text": "Извините, я пока ничего не умею"
-        },
-        "version": "1.0"
-    }`
-
 	testCases := []struct {
 		name         string
 		method       string
@@ -67,7 +60,7 @@ func TestWebhook(t *testing.T) {
 			method:       http.MethodPost,
 			body:         `{"request": {"type": "SimpleUtterance", "command": "sudo do something"}, "version": "1.0"}`,
 			expectedCode: http.StatusOK,
-			expectedBody: successBody,
+			expectedBody: `Точное время .* часов, .* минут. Для вас нет новых сообщений.`,
 		},
 	}
 
