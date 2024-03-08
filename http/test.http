@@ -1,0 +1,11 @@
+POST localhost:8080
+//Content-Type: application/json
+Accept-Encoding: 0
+
+{
+  "request": {
+    "type": "idunno",
+    "command": "do something"
+  },
+  "version": "1.0"
+}
