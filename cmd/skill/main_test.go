@@ -58,7 +58,7 @@ func TestWebhook(t *testing.T) {
 		{
 			name:         "method_post_success",
 			method:       http.MethodPost,
-			body:         `{"request": {"type": "SimpleUtterance", "command": "sudo do something"}, "version": "1.0"}`,
+			body:         `{"request": {"type": "SimpleUtterance", "command": "sudo do something"}, "session": {"new": true}, "version": "1.0"}`,
 			expectedCode: http.StatusOK,
 			expectedBody: `Точное время .* часов, .* минут. Для вас нет новых сообщений.`,
 		},
@@ -80,7 +80,7 @@ func TestWebhook(t *testing.T) {
 
 			assert.Equal(t, tc.expectedCode, resp.StatusCode(), "код ответа не совпадает")
 			if tc.expectedBody != "" {
-				assert.JSONEq(t, tc.expectedBody, string(resp.Body()), "тело ответа не совпдает")
+				assert.Regexp(t, tc.expectedBody, string(resp.Body()))
 			}
 		})
 	}
@@ -101,7 +101,7 @@ func TestGzipCompression(t *testing.T) {
 
 	successBody := `{
 		"response": {
-			"text": "Извините, я пока ничего не умею"
+			"text": "Для вас нет новых сообщений."
 		},
 		"version": "1.0"
 	}`
