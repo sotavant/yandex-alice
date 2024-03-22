@@ -2,6 +2,8 @@ package main
 
 import (
 	"bitbucket.org/sotavant/yandex-alice-skill/internal/logger"
+	"bitbucket.org/sotavant/yandex-alice-skill/internal/store/pg"
+	"database/sql"
 	"go.uber.org/zap"
 	"net/http"
 	"strings"
@@ -63,7 +65,12 @@ func run() error {
 		return err
 	}
 
-	appInstance := newApp(nil)
+	conn, err := sql.Open("pgx", flagDatabaseURI)
+	if err != nil {
+		return err
+	}
+
+	appInstance := newApp(pg.NewStore(conn))
 
 	logger.Log.Info("Running server", zap.String("address", flagRunAddr))
 
